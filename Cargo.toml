@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Shemnei"]
 license = "MIT OR Apache-2.0"
+description = "Async KCL MultiLang Daemon library"
+documentation = "https://github.com/Shemnei/kcl-async"
+homepage = "https://github.com/Shemnei/kcl-async"
+repository = "https://github.com/Shemnei/kcl-async"
 keywords = ["aws", "kinesis", "async"]
 exclude = [
     ".github/*",
