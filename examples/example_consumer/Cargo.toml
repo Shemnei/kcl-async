@@ -1,0 +1,24 @@
+[package]
+name = "kcl-async-example"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[profile.dev]
+opt-level = 0
+# Only retain line level debug information; This will speed up the build process
+# and is only used when debugging.
+debug = 1
+
+[profile.release]
+# Full optimization
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[dependencies]
+async-trait = "0.1.88"
+kcl-async = { version = "0.1.0", path = "../.." }
+tokio = { version = "1.46.1", features = ["full"] }
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"

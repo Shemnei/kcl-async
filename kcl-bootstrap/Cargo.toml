@@ -1,0 +1,25 @@
+[package]
+name = "kcl-bootstrap"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+clap = { version = "4.5.41", features = ["derive"] }
+quick-xml = "0.38.0"
+reqwest = { version = "0.12.22", default-features = false, features = ["blocking", "rustls-tls"] }
+serde = { version = "1.0.219", features = ["derive"] }
+shell-escape = "0.1.5"
+which = "8.0.0"
+
+[profile.dev]
+opt-level = 0
+# Only retain line level debug information; This will speed up the build process
+# and is only used when debugging.
+debug = 1
+
+[profile.release]
+# Full optimization
+opt-level = 3
+lto = true
+codegen-units = 1
