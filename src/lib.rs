@@ -12,7 +12,11 @@ pub mod transport;
 #[derive(Debug, thiserror::Error)]
 pub enum RunError<IoError, ProcessorError> {
     UnexpectedMessage(MessageIn),
+
+    #[error(transparent)]
     IoError(IoError),
+
+    #[error(transparent)]
     ProcessorError(ProcessorError),
 }
 
