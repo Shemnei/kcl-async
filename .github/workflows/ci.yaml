@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUST_BACKTRACE: 1
+  RUSTUP_MAX_RETRIES: 10
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+        rust: ["stable", "beta"]
+        dir: [".", "kcl-bootstrap", "examples/example_consumer"]
+        include:
+        - os: ubuntu-latest
+          rust: "nightly"
+          dir: "."
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      # This plugin should be loaded after toolchain setup
+      - name: Setup rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo hack
+        uses: taiki-e/install-action@cargo-hack
+
+      - name: Build
+        run: cargo test --no-run --all-features
+
+      - name: Test
+        run: cargo hack test --feature-powerset
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: rust-docs
+
+      # This plugin should be loaded after toolchain setup
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --all-features --no-deps --document-private-items
+
+  rustfmt:
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: [".", "kcl-bootstrap", "examples/example_consumer"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: rustfmt
+
+      # This plugin should be loaded after toolchain setup
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
+  clippy:
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: [".", "kcl-bootstrap", "examples/example_consumer"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: clippy
+
+      # This plugin should be loaded after toolchain setup
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run cargo clippy
+        run: |
+          cargo clippy --all-features --all-targets -- --allow deprecated
+
+  lockfile:
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: [".", "kcl-bootstrap", "examples/example_consumer"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      # This plugin should be loaded after toolchain setup
+      - name: Setup rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Lockfile up to date
+        run: cargo update --locked
