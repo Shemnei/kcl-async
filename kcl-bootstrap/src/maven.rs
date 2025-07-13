@@ -49,7 +49,7 @@ impl MavenPackage {
         eprintln!("Downloading from URL: {}", self.url());
         let client = Client::new();
         let resp = client
-            .get(&self.url())
+            .get(self.url())
             .header("User-Agent", "Mozilla/5.0")
             .send()?;
 

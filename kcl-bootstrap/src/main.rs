@@ -25,7 +25,7 @@ fn fetch_jars(
     for entry in std::fs::read_dir(jar_folder)? {
         let entry = entry?;
         let path = entry.path();
-        if path.extension().map_or(false, |ext| ext == "jar") {
+        if path.extension().is_some_and(|ext| ext == "jar") {
             eprintln!("Found JAR: {}", path.display());
             paths.push(path);
         }
@@ -37,7 +37,7 @@ fn fetch_jars(
 
 fn find_java(custom: Option<String>) -> Option<String> {
     if let Some(java) = custom {
-        eprintln!("Using custom Java path: {}", java);
+        eprintln!("Using custom Java path: {java}");
         return Some(java);
     }
 
@@ -45,7 +45,7 @@ fn find_java(custom: Option<String>) -> Option<String> {
         .ok()
         .map(|p| p.to_string_lossy().to_string());
     if let Some(ref path) = found {
-        eprintln!("Found Java in PATH: {}", path);
+        eprintln!("Found Java in PATH: {path}");
     } else {
         eprintln!("Java not found in PATH");
     }
@@ -81,7 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     cmd.args(["-p", &args.properties_file]);
 
     if let Some(logback) = args.logback_configuration {
-        cmd.args(&["-l", &logback]);
+        cmd.args(["-l", &logback]);
     }
 
     if args.should_execute {
@@ -99,7 +99,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .collect::<Vec<_>>()
             .join(" ");
 
-        println!("{}", output);
+        println!("{output}");
     }
 
     Ok(())

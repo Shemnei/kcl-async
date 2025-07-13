@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io::BufReader;
 
 pub fn parse_pom(path: &str) -> Result<Vec<MavenPackage>, Box<dyn std::error::Error>> {
-    eprintln!("Parsing POM: {}", path);
+    eprintln!("Parsing POM: {path}");
     let file = File::open(path)?;
     let mut reader = Reader::from_reader(BufReader::new(file));
     reader.config_mut().trim_text(true);
@@ -30,7 +30,7 @@ pub fn parse_pom(path: &str) -> Result<Vec<MavenPackage>, Box<dyn std::error::Er
             Event::Eof => break,
 
             Event::Start(ref e) => {
-                let tag = strip_ns(e.name().into_inner().as_ref());
+                let tag = strip_ns(e.name().into_inner());
                 current_tag = tag.to_string();
 
                 match current_tag.as_str() {
@@ -47,7 +47,7 @@ pub fn parse_pom(path: &str) -> Result<Vec<MavenPackage>, Box<dyn std::error::Er
             }
 
             Event::End(ref e) => {
-                let tag = strip_ns(e.name().into_inner().as_ref());
+                let tag = strip_ns(e.name().into_inner());
 
                 match tag {
                     "dependency" => {
@@ -70,8 +70,7 @@ pub fn parse_pom(path: &str) -> Result<Vec<MavenPackage>, Box<dyn std::error::Er
                             ));
 
                             eprintln!(
-                                "Parsed dependency: {}:{}:{}",
-                                group_id, artifact_id, version_clean
+                                "Parsed dependency: {group_id}:{artifact_id}:{version_clean}"
                             );
                         }
                     }
@@ -85,7 +84,7 @@ pub fn parse_pom(path: &str) -> Result<Vec<MavenPackage>, Box<dyn std::error::Er
                 let text = e.decode()?.into_owned();
 
                 if in_properties {
-                    versions_map.insert(format!("${{{}}}", current_tag), text);
+                    versions_map.insert(format!("${{{current_tag}}}"), text);
                 } else if in_dependency && !in_exclusions {
                     match current_tag.as_str() {
                         "groupId" => group_id = text,
@@ -109,7 +108,7 @@ pub fn parse_pom(path: &str) -> Result<Vec<MavenPackage>, Box<dyn std::error::Er
 fn strip_ns(tag: &[u8]) -> &str {
     // Remove namespace prefix if present
     match std::str::from_utf8(tag) {
-        Ok(s) => s.split(':').last().unwrap_or(s),
+        Ok(s) => s.split(':').next_back().unwrap_or(s),
         Err(_) => "",
     }
 }
