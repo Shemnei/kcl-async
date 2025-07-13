@@ -44,7 +44,7 @@ impl<T: Transport + Send> Processor<T> for ExampleProcessor {
         _msg: ShutdownMessage,
         _checkpointer: &mut Checkpointer<'_, T>,
     ) -> Result<(), Self::Error> {
-        Ok(())
+        Err(())
     }
 
     async fn shutdown_requested(
@@ -52,15 +52,15 @@ impl<T: Transport + Send> Processor<T> for ExampleProcessor {
         _msg: ShutdownRequestedMessage,
         _checkpointer: &mut Checkpointer<'_, T>,
     ) -> Result<(), Self::Error> {
-        Ok(())
+        Err(())
     }
 
     async fn lease_lost(&mut self, _msg: LeaseLostMessage) -> Result<(), Self::Error> {
-        Ok(())
+        Err(())
     }
 
     async fn shard_ended(&mut self, _msg: ShardEndedMessage) -> Result<(), Self::Error> {
-        Ok(())
+        Err(())
     }
 }
 
