@@ -29,6 +29,8 @@ pub async fn run<T: Transport + Send, P: Processor<T>>(
         let msg_id = msg.id();
 
         {
+            // Handle message
+
             let mut checkpointer = Checkpointer::new(&mut transport);
 
             match msg {
@@ -51,7 +53,7 @@ pub async fn run<T: Transport + Send, P: Processor<T>>(
         }
 
         {
-            // Acknowledge Message
+            // Acknowledge message
 
             let response = MessageOut::Status(message::output::StatusMessage {
                 response_for: msg_id.into(),
